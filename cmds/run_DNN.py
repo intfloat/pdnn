@@ -94,17 +94,17 @@ if __name__ == '__main__':
 
     log('> ... finetuning the model')
     while (cfg.lrate.get_rate() != 0):
-        # one epoch of sgd training 
+        # one epoch of sgd training
         train_error = train_sgd(train_fn, cfg)
         log('> epoch %d, training error %f ' % (cfg.lrate.epoch, 100*numpy.mean(train_error)) + '(%)')
-        # validation 
+        # validation
         valid_error = validate_by_minibatch(valid_fn, cfg)
         log('> epoch %d, lrate %f, validation error %f ' % (cfg.lrate.epoch, cfg.lrate.get_rate(), 100*numpy.mean(valid_error)) + '(%)')
         cfg.lrate.get_next_rate(current_error = 100*numpy.mean(valid_error))
         # output nnet parameters and lrate, for training resume
         if cfg.lrate.epoch % cfg.model_save_step == 0:
             _nnet2file(dnn.layers, filename=wdir + '/nnet.tmp')
-            _lrate2file(cfg.lrate, wdir + '/training_state.tmp') 
+            _lrate2file(cfg.lrate, wdir + '/training_state.tmp')
 
     # save the model and network configuration
     if cfg.param_output_file != '':
@@ -117,8 +117,8 @@ if __name__ == '__main__':
     # output the model into Kaldi-compatible format
     if cfg.kaldi_output_file != '':
         dnn.write_model_to_kaldi(cfg.kaldi_output_file)
-        log('> ... the final Kaldi model is ' + cfg.kaldi_output_file) 
+        log('> ... the final Kaldi model is ' + cfg.kaldi_output_file)
 
-    # remove the tmp files (which have been generated from resuming training) 
+    # remove the tmp files (which have been generated from resuming training)
     os.remove(wdir + '/nnet.tmp')
-    os.remove(wdir + '/training_state.tmp') 
+    os.remove(wdir + '/training_state.tmp')

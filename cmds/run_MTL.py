@@ -32,11 +32,11 @@ from io_func.model_io import _nnet2file, _cfg2file, _file2nnet, log
 from utils.utils import parse_arguments, parse_data_spec_mtl, parse_nnet_spec_mtl
 from utils.learn_rates import _lrate2file, _file2lrate
 
-from utils.network_config import NetworkConfig 
+from utils.network_config import NetworkConfig
 from learning.sgd import validate_by_minibatch
 
 # Implements Multi-Task Learning (MTL) in which several tasks share some lower hidden
-# layers (shared representation learning). Each task has its specific higher layers (in 
+# layers (shared representation learning). Each task has its specific higher layers (in
 # the simplest case, a task-specific softmax layer). References include:
 
 # J. Huang, J. Li, D. Yu, L. Deng, and Y. Gong. Cross-language knowledge transfer using
@@ -44,13 +44,13 @@ from learning.sgd import validate_by_minibatch
 
 # Y. Miao, and F. Metze. Improving language-universal feature extraction with deep maxout
 # and convolutional neural networks. Interspeech 2014.
- 
+
 
 if __name__ == '__main__':
 
     # check the arguments
     arg_elements = [sys.argv[i] for i in range(1, len(sys.argv))]
-    arguments = parse_arguments(arg_elements) 
+    arguments = parse_arguments(arg_elements)
 
     required_arguments = ['train_data', 'valid_data', 'task_number', 'shared_nnet_spec', 'indiv_nnet_spec', 'wdir']
     for arg in required_arguments:
@@ -64,25 +64,25 @@ if __name__ == '__main__':
     wdir = arguments['wdir']
 
     # various lists used in MTL
-    config_array = [] 
+    config_array = []
     train_fn_array = []; valid_fn_array = []
     dnn_array = []
-    
+
     # parse data specification
     train_data_spec_array = parse_data_spec_mtl(train_data_spec)
     valid_data_spec_array = parse_data_spec_mtl(valid_data_spec)
     if len(train_data_spec_array) != task_number or len(valid_data_spec_array) != task_number:
         print "Error: #datasets in data specification doesn't match #tasks"; exit(1)
     # split shared_spec ans indiv_spec into individual task's networks
-    nnet_spec_array, shared_layers_num = parse_nnet_spec_mtl(shared_spec, indiv_spec)   
+    nnet_spec_array, shared_layers_num = parse_nnet_spec_mtl(shared_spec, indiv_spec)
     if len(nnet_spec_array) != task_number:
         print "Error: #networks specified by --indiv-spec doesn't match #tasks"; exit(1)
     # parse network configuration from arguments, and initialize data reading
     for n in xrange(task_number):
         network_config = NetworkConfig()
         network_config.parse_config_dnn(arguments, nnet_spec_array[n])
-        network_config.init_data_reading(train_data_spec_array[n], valid_data_spec_array[n]) 
-        config_array.append(network_config) 
+        network_config.init_data_reading(train_data_spec_array[n], valid_data_spec_array[n])
+        config_array.append(network_config)
 
     numpy_rng = numpy.random.RandomState(89677)
     theano_rng = RandomStreams(numpy_rng.randint(2 ** 30))
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         # get the training, validation and testing function for the model
         log('> ... getting the finetuning functions for task %d' % (n))
         train_fn, valid_fn = dnn.build_finetune_functions((cfg.train_x, cfg.train_y), (cfg.valid_x, cfg.valid_y), batch_size=cfg.batch_size)
-        # add dnn and the functions to the list   
+        # add dnn and the functions to the list
         dnn_array.append(dnn)
         train_fn_array.append(train_fn); valid_fn_array.append(valid_fn)
         # check the working dir to decide whether it's resuming training; if yes, load the tmp network files for initialization
@@ -137,7 +137,7 @@ if __name__ == '__main__':
             batch_numbers_per_chunk[n] = config_array[n].train_sets.cur_frame_num / config_array[n].batch_size
         # although we set one single trunk size, the actual size of data chunks we read in may differ
         # across the tasks. this is because we may reach the end of the data file. thus, we loop over
-        # the max number of mini-batches, but do the checking on each individual task 
+        # the max number of mini-batches, but do the checking on each individual task
         for batch_index in xrange(max(batch_numbers_per_chunk)):  # loop over mini-batches
             for n in active_tasks:
                 if batch_index < batch_numbers_per_chunk[n]:

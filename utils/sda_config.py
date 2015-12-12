@@ -24,12 +24,12 @@ class SdAConfig():
 
     def __init__(self):
 
-        # parameters related with training 
+        # parameters related with training
         self.epochs = 5                  # number of training epochs for each layer
         self.batch_size = 128            # size of mini-batches
         self.corruption_levels=[0.2 for n in xrange(100)]  # denoising factor; we use an array for future extension to layer-specific factor
         self.learning_rates = [.01 for n in xrange(100)]   # learning rate for each layer
-        self.momentum = 0                # momentum 
+        self.momentum = 0                # momentum
 
         self.ptr_layer_number = 0        # number of layers to be trained
         self.hidden_activation = T.nnet.sigmoid   # activation function of the hidden layer/output
@@ -37,7 +37,7 @@ class SdAConfig():
                                                                    # if we normaze the input data with mean (maybe also with variance)
                                                                    # normalization, then we need the tanh activation function to reconstruct
                                                                    # the input
-        
+
         # for maxout autoencoder
         self.do_maxout = False           # whether to apply maxout on the hidden layer
         self.pool_size = 1               # pooling size of maxout
@@ -48,7 +48,7 @@ class SdAConfig():
         self.train_x = None
         self.train_y = None
 
-        # interfaces for validation data. we don't do validation for RBM, so these variables will be None 
+        # interfaces for validation data. we don't do validation for RBM, so these variables will be None
         # we have these variables because we want to use the _cfg2file function from io_func/model_io.py
         self.valid_sets = None
         self.valid_xy = None
@@ -78,7 +78,7 @@ class SdAConfig():
     def init_activation(self):
         self.activation = parse_activation(self.activation_text)
 
-    # parse the arguments to get the values for various variables 
+    # parse the arguments to get the values for various variables
     def parse_config_common(self, arguments):
         if arguments.has_key('corruption_level'):
             self.corruption_levels = [float(arguments['corruption_level']) for n in xrange(100)]
