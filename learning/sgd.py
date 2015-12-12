@@ -28,7 +28,11 @@ def validate_by_minibatch_verbose(valid_fn, valid_sets, valid_xy, batch_size):
     while (not valid_sets.is_finish()):
         valid_sets.load_next_partition(valid_xy)
         for batch_index in xrange(valid_sets.cur_frame_num / batch_size):  # loop over mini-batches
-            valid_error.append(valid_fn(index=batch_index))
+            mean_error = valid_fn(index=batch_index)
+            valid_error += [mean_error] * batch_size
+        if valid_sets.cur_frame_num % batch_size > 0:
+            mean_error = valid_fn(index = valid_sets.cur_frame_num / batch_size)
+            valid_error += [mean_error] * (valid_sets.cur_frame_num % batch_size)
     valid_sets.initialize_read()
     return valid_error
 
@@ -39,7 +43,11 @@ def validate_by_minibatch(valid_fn, cfg):
     while (not valid_sets.is_finish()):
         valid_sets.load_next_partition(valid_xy)
         for batch_index in xrange(valid_sets.cur_frame_num / batch_size):  # loop over mini-batches
-            valid_error.append(valid_fn(index=batch_index))
+            mean_error = valid_fn(index=batch_index)
+            valid_error += [mean_error] * batch_size
+        if valid_sets.cur_frame_num % batch_size > 0:
+            mean_error = valid_fn(index = valid_sets.cur_frame_num / batch_size)
+            valid_error += [mean_error] * (valid_sets.cur_frame_num % batch_size)
     valid_sets.initialize_read()
     return valid_error
 
@@ -56,19 +64,27 @@ def train_sgd_verbose(train_fn, train_sets, train_xy, batch_size, learning_rate,
     while (not train_sets.is_finish()):
         train_sets.load_next_partition(train_xy)
         for batch_index in xrange(train_sets.cur_frame_num / batch_size):  # loop over mini-batches
-            train_error.append(train_fn(index=batch_index, learning_rate = learning_rate, momentum = momentum))
+            mean_error = train_fn(index=batch_index, learning_rate = learning_rate, momentum = momentum)
+            train_error += [mean_error] * batch_size
+        if train_sets.cur_frame_num % batch_size > 0:
+            mean_error = train_fn(index=train_sets.cur_frame_num / batch_size, learning_rate = learning_rate, momentum = momentum)
+            train_error += [mean_error] * (train_sets.cur_frame_num % batch_size)
     train_sets.initialize_read()
     return train_error
 
 def train_sgd(train_fn, cfg):
     train_sets = cfg.train_sets; train_xy = cfg.train_xy
     batch_size = cfg.batch_size
-    learning_rate = cfg.lrate.get_rate(); momentum = cfg.momentum 
-    
+    learning_rate = cfg.lrate.get_rate(); momentum = cfg.momentum
+
     train_error = []
     while (not train_sets.is_finish()):
         train_sets.load_next_partition(train_xy)
         for batch_index in xrange(train_sets.cur_frame_num / batch_size):  # loop over mini-batches
-            train_error.append(train_fn(index=batch_index, learning_rate = learning_rate, momentum = momentum))
+            mean_error = train_fn(index=batch_index, learning_rate = learning_rate, momentum = momentum)
+            train_error += [mean_error] * batch_size
+        if train_sets.cur_frame_num % batch_size > 0:
+            mean_error = train_fn(index=train_sets.cur_frame_num / batch_size, learning_rate = learning_rate, momentum = momentum)
+            train_error += [mean_error] * (train_sets.cur_frame_num % batch_size)
     train_sets.initialize_read()
     return train_error
